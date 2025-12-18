@@ -1,21 +1,27 @@
 /*
-  ===================================================================
-  DAILY OPERATIONS DASHBOARD - CONFIGURATION DATA
-  ===================================================================
-  
-  File: data.js
-  Description: Defines the daily process list, time windows, and validation rules.
-  Note: This data powers both the Dashboard (index.html) and Reports (history.html).
+===================================================================
+DAILY OPERATIONS DASHBOARD - CONFIGURATION DATA
+===================================================================
+
+File: data.js
+Purpose:
+- Defines all daily operational processes
+- Used by index.html (Dashboard) and history.html (Reports)
+
+IMPORTANT RULES:
+- Every `id` MUST be unique
+- `dayCloseRequired: true` blocks day close until DONE
+===================================================================
 */
 
 const processes = [
 
-  /* =========================
-     1. BOD – MORNING OPERATIONS
-     ========================= */
+  /* =========================================================
+     1. BOD – BEGINNING OF DAY (MANDATORY)
+     ========================================================= */
 
   {
-    id: "BOD_GREEK",
+    id: "BOD_GREEK_VERIFICATION",
     category: "BOD",
     submitType: "ONCE",
     dayCloseRequired: true,
@@ -33,7 +39,7 @@ const processes = [
   },
 
   {
-    id: "BOD_MULTITRADE",
+    id: "BOD_MULTITRADE_VERIFICATION",
     category: "BOD",
     submitType: "ONCE",
     dayCloseRequired: true,
@@ -49,7 +55,7 @@ const processes = [
   },
 
   {
-    id: "BOD_HVT_TIME",
+    id: "BOD_HVT_TIME_SYNC",
     category: "BOD",
     submitType: "ONCE",
     dayCloseRequired: true,
@@ -58,12 +64,12 @@ const processes = [
     issueScreenshotRequired: false,
     checks: [
       "Time synchronization verified",
-      "Status sent on WhatsApp group"
+      "Status shared on WhatsApp group"
     ]
   },
 
   {
-    id: "BOD_INTELLECT_PRIMARY",
+    id: "BOD_INTELLECT_LOGSHIP_PRIMARY",
     category: "BOD",
     submitType: "ONCE",
     dayCloseRequired: true,
@@ -72,12 +78,12 @@ const processes = [
     issueScreenshotRequired: true,
     checks: [
       "Log shipping status OK",
-      "No delay / failure observed"
+      "No delay or failure observed"
     ]
   },
 
   {
-    id: "BOD_TGS_MAIL",
+    id: "BOD_TGS_JOB_MAIL",
     category: "BOD",
     submitType: "ONCE",
     dayCloseRequired: true,
@@ -91,7 +97,7 @@ const processes = [
   },
 
   {
-    id: "BOD_MAIL_CHECK",
+    id: "BOD_MAIL_REVIEW",
     category: "BOD",
     submitType: "ONCE",
     dayCloseRequired: true,
@@ -105,12 +111,12 @@ const processes = [
     ]
   },
 
-  /* =========================
-     2. CONTINUOUS – MARKET HOURS
-     ========================= */
+  /* =========================================================
+     2. CONTINUOUS – MARKET HOURS (NON-BLOCKING)
+     ========================================================= */
 
   {
-    id: "CONT_INTELLECT_HOURLY",
+    id: "CONT_INTELLECT_LOGSHIP_DR",
     category: "CONTINUOUS",
     submitType: "MONITOR",
     dayCloseRequired: false,
@@ -124,7 +130,7 @@ const processes = [
   },
 
   {
-    id: "CONT_RESEARCH_360",
+    id: "CONT_RESEARCH360_UTILIZATION",
     category: "CONTINUOUS",
     submitType: "MONITOR",
     dayCloseRequired: false,
@@ -133,16 +139,44 @@ const processes = [
     issueScreenshotRequired: true,
     checks: [
       "Utilization within limits",
+      "09:00 status updated",
+      "10:00 status updated",
+      "11:00 status updated",
+      "12:00 status updated",
+      "13:00 status updated",
+      "14:00 status updated",
+      "15:00 status updated",
+      "16:00 status updated",
+      "17:00 status updated",
       "No abnormal spike observed"
     ]
   },
 
-  /* =========================
-     3. EOD – CLOSING OPERATIONS
-     ========================= */
+  {
+    id: "CONT_FATAL_CPU_MEMORY",
+    category: "CONTINUOUS",
+    submitType: "MONITOR",
+    dayCloseRequired: false,
+    name: "Fatal Error, Live 64 BIT, DB CPU & Memory Utilization",
+    timeWindow: "09:00 – 15:00",
+    issueScreenshotRequired: true,
+    checks: [
+      "09:00 status sent on WhatsApp",
+      "10:00 status sent on WhatsApp",
+      "11:00 status sent on WhatsApp",
+      "12:00 status sent on WhatsApp",
+      "13:00 status sent on WhatsApp",
+      "14:00 status sent on WhatsApp",
+      "15:00 status sent on WhatsApp"
+    ]
+  },
+
+  /* =========================================================
+     3. EOD – END OF DAY (MANDATORY)
+     ========================================================= */
 
   {
-    id: "EOD_RESEARCH_360_REPORT",
+    id: "EOD_RESEARCH360_REPORT",
     category: "EOD",
     submitType: "ONCE",
     dayCloseRequired: true,
@@ -157,9 +191,9 @@ const processes = [
 
 ];
 
-/* =========================
+/* =========================================================
    STATUS CONSTANTS
-   ========================= */
+   ========================================================= */
 
 const STATUS = Object.freeze({
   DONE: "DONE",
