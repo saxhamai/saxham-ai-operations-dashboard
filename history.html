@@ -1,499 +1,214 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<title>Process History Reports</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-/* ---------- VARIABLES & RESET (Matches Dashboard) ---------- */
-:root {
-  --primary: #0056b3;
-  --bg-body: #f4f6f9;
-  --bg-card: #ffffff;
-  --text-main: #212529;
-  --text-muted: #6c757d;
-  --border: #dee2e6;
-  
-  --success: #28a745;
-  --warning: #ffc107;
-  --danger: #dc3545;
-  --info: #17a2b8;
-
-  --shadow: 0 4px 6px rgba(0,0,0,0.05);
-  --radius: 8px;
-
-  /* Header Specific Colors */
-  --header-bg: #1e293b;
-  --header-text: #ffffff;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg-body);
-  color: var(--text-main);
-  margin: 0;
-  padding: 0;
-  padding-bottom: 60px;
-}
-
-/* ---------- PREMIUM HEADER DESIGN (Matches Index) ---------- */
-.dashboard-header {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  padding: 12px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  color: var(--header-text);
-}
-
-.brand-container {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.brand-logo {
-  height: 48px;
-  width: auto;
-  border-radius: 6px;
-  background: #fff;
-  padding: 2px;
-  box-shadow: 0 0 10px rgba(255,255,255,0.2);
-}
-
-.brand-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.brand-name {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  background: linear-gradient(90deg, #60a5fa, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-transform: uppercase;
-}
-
-.brand-tagline {
-  font-size: 11px;
-  opacity: 0.8;
-  font-weight: 400;
-  letter-spacing: 1px;
-  color: #cbd5e1;
-}
-
-.page-title-badge {
-  background: rgba(255,255,255,0.1);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 1px solid rgba(255,255,255,0.1);
-  margin-left: 15px;
-  display: none;
-}
-@media (min-width: 600px) {
-  .page-title-badge { display: inline-block; }
-}
-
-/* Header Buttons */
-.btn-header {
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.05);
-  color: #fff;
-  padding: 8px 14px;
-  font-size: 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-header:hover {
-  background: rgba(255,255,255,0.15);
-  transform: translateY(-1px);
-}
-
-/* ---------- FILTER BAR ---------- */
-.filter-container {
-  max-width: 800px;
-  margin: 30px auto 20px auto;
-  padding: 20px;
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid var(--border);
-}
-
-.date-input {
-  padding: 10px 15px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--text-main);
-  outline: none;
-}
-
-.date-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(0,86,179,0.1);
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 14px;
-  transition: opacity 0.2s;
-}
-.btn-primary:hover { opacity: 0.9; }
-
-/* ---------- LAYOUT CONTAINERS ---------- */
-#historyContainer {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 20px 60px 20px;
-}
-
-/* ---------- SUMMARY WIDGET ---------- */
-.summary-widget {
-  background: var(--bg-card);
-  padding: 25px;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  margin-bottom: 30px;
-  border: 1px solid var(--border);
-}
-
-.summary-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--text-main);
-}
-
-.progress-track {
-  background: #e9ecef;
-  border-radius: 10px;
-  height: 12px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  background: linear-gradient(90deg, var(--primary), var(--info));
-  height: 100%;
-  width: 0%;
-  transition: width 0.4s;
-}
-
-.summary-footer {
-  margin-top: 15px;
-  font-size: 12px;
-  color: var(--text-muted);
-  text-align: right;
-  border-top: 1px solid #f0f0f0;
-  padding-top: 10px;
-}
-
-/* ---------- SECTIONS ---------- */
-.section { margin-bottom: 30px; }
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid var(--border);
-  padding-bottom: 8px;
-  margin-bottom: 15px;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.section-stats {
-  font-size: 12px;
-  font-weight: 600;
-  background: #e2e6ea;
-  padding: 4px 8px;
-  border-radius: 4px;
-  color: var(--text-main);
-}
-
-/* ---------- HISTORY CARD ---------- */
-.history-card {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 18px;
-  margin-bottom: 15px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  border-left: 5px solid #ccc;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: transform 0.2s;
-}
-
-.history-card:hover { transform: translateY(-2px); }
-
-.history-card.DONE { border-left-color: var(--success); }
-.history-card.PENDING { border-left-color: var(--warning); }
-.history-card.ISSUE { border-left-color: var(--danger); }
-
-.card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.process-name {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text-main);
-}
-
-.status-badge {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 4px;
-  text-transform: uppercase;
-}
-
-.badge-DONE { background: #d4edda; color: #155724; }
-.badge-PENDING { background: #fff3cd; color: #856404; }
-.badge-ISSUE { background: #f8d7da; color: #721c24; }
-
-.remark-text {
-  font-size: 13px;
-  color: #495057;
-  background: #f8f9fa;
-  padding: 10px;
-  border-radius: 4px;
-  border-left: 3px solid var(--border);
-  font-style: italic;
-}
-
-.timestamp {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-align: right;
-  margin-top: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-}
-
-/* ---------- ALERTS ---------- */
-.alert {
-  padding: 20px;
-  border-radius: var(--radius);
-  text-align: center;
-  font-weight: 500;
-  margin-top: 30px;
-  border: 1px solid transparent;
-}
-
-.alert-info {
-  background-color: #e0f2fe;
-  color: #0c4a6e;
-  border-color: #bae6fd;
-}
-
-.alert-danger {
-  background-color: #fee2e2;
-  color: #991b1b;
-  border-color: #fecaca;
-}
-
-@media (max-width: 600px) {
-  .dashboard-header { flex-direction: column; align-items: flex-start; gap: 15px; }
-  .filter-container { flex-direction: column; align-items: stretch; }
-  .btn-header { width: 100%; justify-content: center; margin-top: 10px;}
-}
-</style>
-</head>
-
-<body>
-
-<header class="dashboard-header">
-  
-  <div class="brand-container">
-    <img src="Logo.png" alt="SaXhamAI" class="brand-logo" onerror="this.style.display='none'">
-    <div class="brand-info">
-      <span class="brand-name">SaXhamAI</span>
-      <span class="brand-tagline">Created by Nitin Pawar</span>
-    </div>
-    <span class="page-title-badge">📅 History Reports</span>
-  </div>
-
-  <div>
-    <button class="btn-header" onclick="goHome()">
-      🏠 Back to Dashboard
-    </button>
-  </div>
-
-</header>
-
-<div class="filter-container">
-  <input type="date" id="historyDate" class="date-input" />
-  <button class="btn-primary" onclick="loadHistory()">View Report</button>
-</div>
-
-<div id="historyContainer"></div>
-
 <script src="js/data.js"></script>
-
 <script>
-/* ---------- SET TODAY ---------- */
+/* ======================================================
+   INIT DATE
+   ====================================================== */
 function setToday() {
   const d = new Date();
-  document.getElementById("historyDate").value =
-    d.toISOString().split("T")[0];
+  document.getElementById("historyDate").value = d.toISOString().split("T")[0];
 }
 
-/* ---------- LOAD HISTORY ---------- */
+/* ======================================================
+   LOAD HISTORY (SINGLE SOURCE OF TRUTH)
+   ====================================================== */
 function loadHistory() {
   const date = document.getElementById("historyDate").value;
   const container = document.getElementById("historyContainer");
   container.innerHTML = "";
 
-  if (!date) return alert("Please select a date");
-
-  const closed = localStorage.getItem("dayClosed_" + date);
-  // Alert for Open Day (Not closed yet)
-  if (!closed) {
-    container.innerHTML = `
-      <div class="alert alert-info">
-        ℹ️ Operations for <strong>${date}</strong> are still active (Day not closed).<br>
-        <small>Reports are generated only after day closure.</small>
-      </div>`;
+  if (!date) {
+    alert("Please select a date");
     return;
   }
 
-  const raw = localStorage.getItem("daily_" + date);
-  // Alert for No Data
-  if (!raw) {
-    container.innerHTML = `
-      <div class="alert alert-danger">
-        ❌ No records found for <strong>${date}</strong>.
-      </div>`;
-    return;
-  }
+  /* ---- STORAGE KEYS (MATCH INDEX.HTML) ---- */
+  const STORAGE = {
+    DAILY: `daily_${date}`,
+    PARTIAL_BOD: `partialBOD_${date}`,
+    OTHER_TASKS: `otherTasks_${date}`,
+    DAY_CLOSED: `dayClosed_${date}`
+  };
 
-  const records = JSON.parse(raw);
+  const dailyRaw = localStorage.getItem(STORAGE.DAILY);
+  const snapshotRaw = localStorage.getItem(STORAGE.PARTIAL_BOD);
+  const closedAt = localStorage.getItem(STORAGE.DAY_CLOSED);
 
-  /* ---------- OVERALL SUMMARY WIDGET ---------- */
-  const total = processes.length;
-  const done = Object.keys(records).length;
-  const percent = Math.round((done / total) * 100);
+  let hasAnyData = false;
 
-  const summary = document.createElement("div");
-  summary.className = "summary-widget";
-  summary.innerHTML = `
-    <div class="summary-header">
-      <span>Daily Completion Rate</span>
-      <span>${done} / ${total} (${percent}%)</span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-fill" style="width:${percent}%"></div>
-    </div>
-    <div class="summary-footer">
-      🔒 Day Closed at: <strong>${closed}</strong>
-    </div>
-  `;
-  container.appendChild(summary);
+  /* ======================================================
+     1️⃣ PARTIAL BOD SNAPSHOT (ALWAYS SHOW IF EXISTS)
+     ====================================================== */
+  if (snapshotRaw) {
+    hasAnyData = true;
+    const snap = JSON.parse(snapshotRaw);
 
-  /* ---------- CATEGORY SECTIONS ---------- */
-  ["BOD", "CONTINUOUS", "EOD"].forEach(category => {
-    const catProcesses = processes.filter(p => p.category === category);
-    const submitted = catProcesses.filter(p => records[p.id]).length;
-    
-    // Skip empty categories in report
-    if (submitted === 0) return;
+    const snapDiv = document.createElement("div");
+    snapDiv.className = "snapshot-card";
+    snapDiv.innerHTML = `
+      <div class="snapshot-badge">Checkpoint</div>
+      <div class="snapshot-title">
+        <span>📸 BOD Checkpoint Snapshot</span>
+        <span style="font-size:12px;">Captured: ${snap.time}</span>
+      </div>
+      <span class="snapshot-note">
+        Informational – snapshot shows BOD status at that moment only.
+      </span>
 
-    const sec = document.createElement("div");
-    sec.className = "section";
+      <div style="font-size:13px; margin-bottom:8px;">
+        <strong style="color:var(--success)">✅ Completed:</strong>
+        ${snap.completed.length ? snap.completed.join(", ") : "None"}
+      </div>
 
-    const catPercent = Math.round(
-      (submitted / catProcesses.length) * 100
-    );
-
-    sec.innerHTML = `
-      <div class="section-header">
-        <span class="section-title">${category} Operations</span>
-        <span class="section-stats">${submitted}/${catProcesses.length} Done</span>
+      <div style="font-size:13px;">
+        <strong style="color:var(--danger)">⏳ Pending:</strong>
+        ${snap.pending.length ? snap.pending.join(", ") : "None"}
       </div>
     `;
+    container.appendChild(snapDiv);
+  }
 
-    catProcesses.forEach(p => {
-      const r = records[p.id];
-      if (!r) return;
+  /* ======================================================
+     2️⃣ DAY STILL ACTIVE BANNER
+     ====================================================== */
+  if (!closedAt) {
+    const banner = document.createElement("div");
+    banner.className = "alert alert-info";
+    banner.innerHTML = `
+      <strong>Day is still active.</strong><br>
+      <small>
+        Snapshot & live progress are visible.  
+        Final report will be locked after day closure.
+      </small>
+    `;
+    container.appendChild(banner);
+  }
 
-      const div = document.createElement("div");
-      div.className = `history-card ${r.status}`;
-      
-      div.innerHTML = `
-        <div class="card-top">
-          <span class="process-name">${p.name}</span>
-          <span class="status-badge badge-${r.status}">${r.status}</span>
+  /* ======================================================
+     3️⃣ PROCESS HISTORY (LIVE OR FINAL)
+     ====================================================== */
+  if (dailyRaw) {
+    hasAnyData = true;
+    const records = JSON.parse(dailyRaw);
+
+    /* ---- SHOW FINAL SUMMARY ONLY IF DAY CLOSED ---- */
+    if (closedAt) {
+      const total = processes.length;
+      const done = Object.keys(records).length;
+      const percent = Math.round((done / total) * 100);
+
+      const summary = document.createElement("div");
+      summary.className = "summary-widget";
+      summary.innerHTML = `
+        <div class="summary-header">
+          <span>Final Daily Summary</span>
+          <span>${done} / ${total} (${percent}%)</span>
         </div>
-        
-        ${r.remark ? `<div class="remark-text">📝 ${r.remark}</div>` : ""}
-        
-        <div class="timestamp">
-          🕒 Submitted: ${r.submittedAt || "N/A"}
+        <div class="progress-track">
+          <div class="progress-fill" style="width:${percent}%"></div>
+        </div>
+        <div style="margin-top:15px; font-size:12px; text-align:right; color:var(--text-muted); border-top:1px solid #f0f0f0; padding-top:10px;">
+          🔒 Day Closed at <strong>${closedAt}</strong>
         </div>
       `;
-      sec.appendChild(div);
-    });
+      container.appendChild(summary);
+    }
 
-    container.appendChild(sec);
-  });
+    /* ---- CATEGORY SECTIONS ---- */
+    ["BOD", "CONTINUOUS", "EOD"].forEach(category => {
+      const list = processes.filter(p => p.category === category);
+      const submitted = list.filter(p => records[p.id]).length;
+      if (submitted === 0) return;
+
+      const sec = document.createElement("div");
+      sec.className = "section";
+      sec.innerHTML = `
+        <div class="section-header">
+          <span class="section-title">${category} Operations</span>
+          <span style="font-size:11px; font-weight:700;">
+            ${submitted}/${list.length} DONE
+          </span>
+        </div>
+      `;
+
+      list.forEach(p => {
+        const r = records[p.id];
+        if (!r) return;
+
+        const card = document.createElement("div");
+        card.className = `history-card ${r.status}`;
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="process-name">${p.name}</span>
+            <span class="status-badge badge-${r.status}">${r.status}</span>
+          </div>
+          ${r.remark ? `<div class="remark-text">📝 ${r.remark}</div>` : ""}
+          <div class="timestamp">🕒 ${r.submittedAt}</div>
+        `;
+        sec.appendChild(card);
+      });
+
+      container.appendChild(sec);
+    });
+  }
+
+  /* ======================================================
+     4️⃣ AD-HOC TASKS
+     ====================================================== */
+  const otherRaw = localStorage.getItem(STORAGE.OTHER_TASKS);
+  if (otherRaw) {
+    const tasks = JSON.parse(otherRaw);
+    if (tasks.length) {
+      hasAnyData = true;
+      const sec = document.createElement("div");
+      sec.className = "section";
+      sec.innerHTML = `
+        <div class="section-header">
+          <span class="section-title">🔹 Ad-hoc Tasks</span>
+        </div>
+      `;
+
+      tasks.forEach(t => {
+        const div = document.createElement("div");
+        div.className = "history-card DONE";
+        div.innerHTML = `
+          <div class="card-top">
+            <span class="process-name">${t.title}</span>
+            <span class="status-badge badge-DONE">DONE</span>
+          </div>
+          <div class="remark-text">📝 ${t.remark}</div>
+          <div class="timestamp">🕒 ${t.time}</div>
+        `;
+        sec.appendChild(div);
+      });
+
+      container.appendChild(sec);
+    }
+  }
+
+  /* ======================================================
+     5️⃣ NO DATA FALLBACK
+     ====================================================== */
+  if (!hasAnyData) {
+    container.innerHTML = `
+      <div class="alert alert-danger">
+        ❌ No data available for <strong>${date}</strong>
+      </div>
+    `;
+  }
 }
 
-/* ---------- NAV ---------- */
+/* ======================================================
+   NAV
+   ====================================================== */
 function goHome() {
   window.location.href = "index.html";
 }
 
-/* ---------- INIT ---------- */
+/* ======================================================
+   INIT
+   ====================================================== */
 window.onload = function () {
   setToday();
   loadHistory();
 };
 </script>
-
-</body>
-</html>
